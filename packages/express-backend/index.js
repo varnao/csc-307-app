@@ -38,9 +38,9 @@ const port = 8000;
 app.use(express.json());
 
 const findUserById = (id) =>
-    users["users_list"].find((user) => user["id"] === id);
+  users["users_list"].find((user) => user["id"] === id);
   
-  app.get("/users/:id", (req, res) => {
+app.get("/users/:id", (req, res) => {
     const id = req.params["id"]; //or req.params.id
     let result = findUserById(id);
     if (result === undefined) {
@@ -65,9 +65,65 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+const findUserByName = (name) => {
+  return users["users_list"].filter(
+    (user) => user["name"] === name
+  );
+};
+
+const findUserByJob = (job) => {
+  return users["users_list"].filter(
+    (user) => user["job"] === job
+  );
+};
+
+const filterUsers = (name, job) => {
+  return users["users_list"].filter(
+    (user) => user["name"] === name && user["job"] === job
+  );
+}
+
+
 app.get("/users", (req, res) => {
+  const name = req.query.name;
+  const job = req.query.job;
+  if (name && job) {
+    let result = filterUsers(name, job);
+    result = { users_list: result };
+    res.send(result);
+  } else if (name) {
+    let result = findUserByName(name);
+    result = { users_list: result };
+    res.send(result);
+  } else if (job) {
+    let result = findUserByJob(job);
+    result = { users_list: result }
+    res.send(result);
+  } else {
     res.send(users);
-  });
+  }
+});
+
+const deleteUserById = (id) => {
+  // find index of user to delete
+  const userToDelete = users["users_list"].findIndex(user => user.id === id);
+  if (userToDelete !== -1) { // if user was found
+    users["users_list"].splice(userToDelete, 1) //starting at this index, remove 1 item
+    return true;
+  }
+  return false;
+};
+
+app.delete("/users/:id", (req, res) => {
+  const id = req.params.id;
+  const deletedUser = deleteUserById(id)
+  if (deletedUser) {
+    res.status(200).send("User was successfully deleted")
+  } else {
+    res.status(404).send("Unable to delete user")
+  }
+});
+
 
 app.listen(port, () => {
   console.log(
