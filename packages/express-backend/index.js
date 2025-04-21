@@ -1,5 +1,6 @@
 // index.js
 import express from "express";
+import cors from "cors";
 
 const users = {
     users_list: [
@@ -35,6 +36,8 @@ const users = {
 const app = express();
 const port = 8000;
 
+app.use(cors());
+
 app.use(express.json());
 
 const findUserById = (id) =>
@@ -51,14 +54,17 @@ app.get("/users/:id", (req, res) => {
   });
 
 const addUser = (user) => {
+    const letters = Math.random().toString(36).substring(2,5);
+    const nums = Math.floor(Math.random() * 900 + 100);
+    user.id = letters + nums;
     users["users_list"].push(user);
     return user;
 };
 
 app.post("/users", (req, res) => {
     const userToAdd = req.body;
-    addUser(userToAdd);
-    res.send();
+    const addedUser = addUser(userToAdd);
+    res.status(201).send(addedUser);
   });
 
 app.get("/", (req, res) => {
