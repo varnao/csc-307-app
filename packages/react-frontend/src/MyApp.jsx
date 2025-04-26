@@ -8,13 +8,13 @@ function MyApp() {
   
   const [characters, setCharacters] = useState([]);
 
-  function removeOneCharacter(id) {
-    fetch(`http://localhost:8000/users/${id}`, {
+  function removeOneCharacter(_id) {
+    fetch(`http://localhost:8000/users/${_id}`, {
       method: "DELETE"
     })
     .then((res) => {
       if (res.status === 204) {
-        setCharacters(characters.filter((user) => user.id !== id));
+        setCharacters(characters.filter((user) => user._id !== _id));
       } else if (res.status === 404) {
         console.error("User not found");
       }
